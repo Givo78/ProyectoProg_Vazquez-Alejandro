@@ -85,9 +85,14 @@ public class Dao {
 
     public static boolean crearUsuario(String nombre, String password, boolean esAdmin) {
         // TODO 07 crearUsuario
+        String contrasenaSalt= Security.generateSalt();
+        String contrasenaHas = Security.hash(password);
         if(esAdmin){
-
+            mapaUsuarios.put(nombre, new Usuario(nombre,contrasenaSalt,contrasenaHas,ROL_ADMIN));
+        } else{
+            mapaUsuarios.put(nombre, new Usuario(nombre,contrasenaSalt,contrasenaHas,ROL_USER));
         }
+
         return true;
     }
 
@@ -98,12 +103,21 @@ public class Dao {
 
     public static boolean modificarRolUsuario(String nombre, String rol) {
         // TODO 09 modificarRolUsuario
+        if (mapaUsuarios.containsKey(nombre)){
+            mapaUsuarios.get(nombre).setRol(rol);
+            return true;
+        }
         return false;
     }
 
     public static boolean eliminarUsuario(String nombre) {
         // TODO 10 eliminarUsuario
-        return true;
+        if (mapaUsuarios.containsKey(nombre)){
+            mapaUsuarios.remove(nombre);
+            return true;
+        }else {
+            return false;
+        }
     }
 
     //endregion
