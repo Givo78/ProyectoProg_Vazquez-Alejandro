@@ -53,6 +53,22 @@ public class Dao {
     private static void iniMapaPujas() {
         // TODO 03 iniMapaPujas
         mapaPujas = new HashMap<>();
+        Set<Long> idPujas= new HashSet<>();
+        for (String pujas : PUJAS) {
+            String[] arrayPujas = pujas.split(SPLITTER);
+            idPujas.add(Long.parseLong(arrayPujas[0]));
+
+        }
+        for (Long idPuja : idPujas) {
+            List<Puja> listaPuja = new ArrayList<>();
+            for (String puja : PUJAS) {
+                String[] arrayPujas = puja.split(SPLITTER);
+                if (Long.parseLong(arrayPujas[0])   == idPuja){
+                    listaPuja.add(new Puja(Long.parseLong(arrayPujas[0]),arrayPujas[1],Integer.parseInt(arrayPujas[2]),arrayPujas[3]));
+                }
+            }
+            mapaPujas.put(idPuja,listaPuja);
+        }
     }
     //endregion
 
@@ -130,11 +146,20 @@ public class Dao {
 
     public static boolean validarArticulo(long id, boolean valido) {
         // TODO 12 validarArticulo
-        return false;
+        if (valido){
+            mapaItems.get(id).setEstado(EST_ACEPTADO);
+            return true;
+        } else {
+            mapaItems.get(id).setEstado(EST_RECHAZADO);
+            return true;
+        }
     }
 
     public static boolean validarTodos() {
         // TODO 13 validarTodos
+        for (Long items : mapaItems.keySet()) {
+            validarArticulo(items,true);
+        }
         return true;
     }
     //endregion
@@ -147,6 +172,11 @@ public class Dao {
 
     public static boolean resetearSubasta() {
         // TODO 15 resetearSubasta
+        for (Long l : mapaItems.keySet()) {
+            if (!mapaItems.get(l).isHistorico()){
+                mapaItems.get(l).setHistorico(true);
+            }
+        }
         return true;
     }
 
@@ -160,7 +190,11 @@ public class Dao {
 
     public static Item obtenerArticuloPujable(long idArt) {
         // TODO 17 obtenerArticuloPujable
-        return null;
+        if( mapaItems.get(idArt).getEstado()==EST_ACEPTADO){
+            return mapaItems.get(idArt);
+        }else {
+            return null;
+        }
     }
 
     public static List<Item> obtenerArticulosPujables() {
@@ -180,8 +214,15 @@ public class Dao {
 
     public static boolean ofrecerArticulo(Item item) {
         // TODO 21 ofrecerArticulo
-        return true;
+        if (item==null || mapaItems.containsKey(item.getId())){
+            return false;
+        }else {
+            item.setEstado(EST_PENDIENTE);
+            mapaItems.put(item.getId(), item);
+            return true;
+        }
+    }
     }
 
     //endregion
-}
+
